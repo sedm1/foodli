@@ -16,12 +16,7 @@ export const useUserStore = defineStore('user', () => {
         localStorage.setItem('user', JSON.stringify(newVal));
     }, { deep: true });
 
-    function toggleRole() {
-        user.value.role = user.value.role === 'пекарь' ? 'покупатель' : 'пекарь';
-    }
-
     return {
         user,
-        toggleRole,
     };
 });

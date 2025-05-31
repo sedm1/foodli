@@ -22,7 +22,7 @@ import Menu from "@/components/Menu.vue";
 import FoodItem from "@/components/FoodItem.vue";
 import { foodByCategory } from "@/products";
 
-const selectedMenu = ref('Хлеб');
+const selectedMenu = ref('Торты');
 
 const selectedFood = computed(() => foodByCategory[selectedMenu.value] || []);
 </script>

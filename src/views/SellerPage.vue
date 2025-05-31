@@ -7,7 +7,7 @@
       <h2>Товары</h2>
 
       <div class="products_block">
-        <FoodItem v-for="(product, index) in baker.products" :item="product"/>
+        <FoodItem v-for="(product, index) in baker.products" :item="product" :sellerName="baker.fullName"/>
       </div>
 
     </div>

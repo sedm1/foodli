@@ -5,8 +5,9 @@ defineProps<{
     desc: string;
     img: string;
     price: number;
-    quantity?: number
+    quantity?: number;
   };
+  sellerName?: string;
 }>();
 </script>
 
@@ -21,7 +22,14 @@ defineProps<{
       <p class="foodItem_infoDescription">
         {{ item.desc }}
       </p>
-      <router-link :to="`/product/${item.name}`" class="foodItem_infoButton">
+      <router-link
+          :to="{
+          name: 'ProductPage',
+          params: { name: item.name },
+          query: sellerName ? { seller: sellerName } : {}
+        }"
+          class="foodItem_infoButton"
+      >
         Подробнее
       </router-link>
     </div>

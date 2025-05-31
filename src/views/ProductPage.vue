@@ -1,38 +1,17 @@
-<template>
-  <Header></Header>
-
-  <section class="product" v-if="product">
-    <div class="container">
-      <div class="productImg">
-        <img :src="'/images/products/' + product.img" :alt="product.name"/>
-      </div>
-
-      <div class="productInfo">
-        <h1 class="productInfoTitle">{{ product.name }}</h1>
-        <p class="productInfoDescription">{{ product.desc }}</p>
-        <p class="productInfoPrice"><strong>{{ product.price }} ₽ / кг</strong></p>
-        <button class="productInfoButton" @click="addToCart(product)">Добавить в корзину</button>
-      </div>
-    </div>
-
-  </section>
-</template>
-
 <script setup>
 import { useRoute } from 'vue-router';
 import { computed } from 'vue';
 import { useCartStore } from '@/stores/cart';
 import { foodByCategory } from "@/products.js";
 import Header from "@/components/Header.vue";
-import { toast} from 'vue3-toastify';
-
+import { toast } from 'vue3-toastify';
 
 const route = useRoute();
 const cart = useCartStore();
 
 const productName = route.params.name;
+const sellerName = route.query.seller;
 
-// Поиск товара по всем категориям
 const product = computed(() => {
   for (const category of Object.values(foodByCategory)) {
     const found = category.find(p => p.name === productName);
@@ -49,6 +28,28 @@ function addToCart(product) {
   });
 }
 </script>
+
+<template>
+  <Header></Header>
+
+  <section class="product" v-if="product">
+    <div class="container">
+      <div class="productImg">
+        <img :src="'/images/products/' + product.img" :alt="product.name"/>
+      </div>
+
+      <div class="productInfo">
+        <h1 class="productInfoTitle">{{ product.name }}</h1>
+        <p class="productInfoDescription">{{ product.desc }}</p>
+        <p class="productInfoPrice"><strong>{{ product.price }} ₽ / кг</strong></p>
+        <button class="productInfoButton" @click="addToCart(product)">
+          {{ sellerName ? `Купить у ${sellerName}` : 'Добавить в корзину' }}
+        </button>
+      </div>
+    </div>
+  </section>
+</template>
+
 
 <style scoped>
 .product .container {

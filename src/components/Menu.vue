@@ -29,7 +29,7 @@ const menuItems = [
   "Маффины",
 ];
 
-const selectedMenu = ref('Хлеб');
+const selectedMenu = ref('Торты');
 
 const selectItem = (item) => {
   selectedMenu.value = item;

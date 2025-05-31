@@ -20,14 +20,13 @@ import { ref, defineEmits } from "vue";
 const emit = defineEmits(['update:menu']);
 
 const menuItems = [
-  "Хлеб",
+  "Торты",
+  "Пирожные",
   "Булочки",
   "Пироги",
   "Печенье",
   "Кексы",
   "Маффины",
-  "Торты",
-  "Пирожные",
 ];
 
 const selectedMenu = ref('Хлеб');

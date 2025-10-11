@@ -5,7 +5,7 @@ services:
       dockerfile: docker/backend.Dockerfile
     container_name: app-backend
     ports:
-      - "8080:8080"
+      - "18080:8080"
     restart: unless-stopped
 
   frontend:
@@ -16,7 +16,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      NUXT_PUBLIC_API_BASE: "http://localhost:8080"
+      NUXT_PUBLIC_API_BASE: "http://novikovn383.fvds.ru:18080"
       NITRO_HOST: "0.0.0.0"
       NITRO_PORT: "3000"
     depends_on:

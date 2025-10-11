@@ -1,0 +1,47 @@
+name: 🚀 Deploy to VPS
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧾 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Upload project to VPS via rsync
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: -az --delete --exclude='.git' --exclude='.github' --exclude='node_modules' --exclude='**/.output' --exclude='**/target'
+          path: ./
+          remote_path: /opt/app/
+          remote_host: ${{ secrets.VPS_HOST }}
+          remote_user: ${{ secrets.VPS_USER }}
+          remote_key: ${{ secrets.VPS_KEY }}
+
+      - name: 🐳 Build & Restart Docker containers
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          port: 22
+          script: |
+            set -e
+            echo "📁 Moving to app directory..."
+            cd /opt/app
+
+            echo "🧹 Cleaning old containers..."
+            docker compose down || true
+
+            echo "🔨 Rebuilding images..."
+            docker compose build --no-cache
+
+            echo "🚀 Starting containers..."
+            docker compose up -d
+
+            echo "✅ Deployment complete!"

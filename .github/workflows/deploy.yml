@@ -23,7 +23,7 @@ jobs:
           remote_user: ${{ secrets.VPS_USER }}
           remote_key: ${{ secrets.VPS_KEY }}
 
-      - name: 🐳 Build & Restart Docker containers
+      - name: 🐳 Build & Restart with BuildKit cache
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -32,16 +32,47 @@ jobs:
           port: 22
           script: |
             set -e
-            echo "📁 Moving to app directory..."
             cd /opt/app
 
-            echo "🧹 Cleaning old containers..."
-            docker compose down || true
+            echo "🔧 Preparing local build cache and builder..."
+            mkdir -p /opt/.buildx-cache/backend /opt/.buildx-cache/frontend
+            chown -R $(id -u):$(id -g) /opt/.buildx-cache || true
 
-            echo "🔨 Rebuilding images..."
-            docker compose build --no-cache
+            export DOCKER_BUILDKIT=1
 
-            echo "🚀 Starting containers..."
-            docker compose up -d
+            # создать билдера, если ещё не создан
+            if ! docker buildx inspect vpsbuilder >/dev/null 2>&1; then
+              docker buildx create --use --name vpsbuilder
+            else
+              docker buildx use vpsbuilder
+            fi
+            docker buildx inspect --bootstrap >/dev/null
 
-            echo "✅ Deployment complete!"
+            echo "🧹 Down old containers (remove orphans)..."
+            docker compose down --remove-orphans || true
+
+            echo "🔨 Build backend (with persistent cache)..."
+            docker buildx build \
+              -f docker/backend.Dockerfile \
+              -t app-backend:latest \
+              --cache-from type=local,src=/opt/.buildx-cache/backend \
+              --cache-to   type=local,dest=/opt/.buildx-cache/backend,mode=max \
+              --load \
+              .
+
+            echo "🔨 Build frontend (with persistent cache)..."
+            docker buildx build \
+              -f docker/frontend.Dockerfile \
+              -t app-frontend:latest \
+              --cache-from type=local,src=/opt/.buildx-cache/frontend \
+              --cache-to   type=local,dest=/opt/.buildx-cache/frontend,mode=max \
+              --load \
+              .
+
+            echo "🚀 Starting containers (no rebuild)..."
+            docker compose up -d --no-build
+
+            echo "🧽 Optional: prune dangling images"
+            docker image prune -f || true
+
+            echo "✅ Done."

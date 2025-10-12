@@ -16,7 +16,7 @@ jobs:
       - name: 📦 Upload project to VPS via rsync
         uses: burnett01/rsync-deployments@7.0.1
         with:
-          switches: -az --delete --exclude='.git' --exclude='.github' --exclude='node_modules' --exclude='**/.output' --exclude='**/target'
+          switches: -az --delete --exclude='.git' --exclude='.github' --exclude='.env' --exclude='node_modules' --exclude='**/.output' --exclude='**/target'
           path: ./
           remote_path: /opt/app/
           remote_host: ${{ secrets.VPS_HOST }}
